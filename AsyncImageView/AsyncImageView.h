@@ -81,6 +81,12 @@ extern NSString *const AsyncImageErrorKey;
 @property (nonatomic, assign) UIActivityIndicatorViewStyle activityIndicatorStyle;
 @property (nonatomic, assign) NSTimeInterval crossfadeDuration;
 
+@property (nonatomic, assign) CGFloat borderWidth;
+@property (nonatomic, assign) CGColorRef borderColor;
+@property (nonatomic, assign) CGFloat cornerRadius;
+@property (nonatomic, strong) UIImage *defaultImage;
+- (void)showDefaultImage;
+
 @end
 
 

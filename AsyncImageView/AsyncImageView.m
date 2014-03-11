@@ -443,6 +443,9 @@ NSString *const AsyncImageErrorKey = @"error";
                                                                           target:target
                                                                          success:success
                                                                          failure:failure];
+    
+    
+    
     BOOL added = NO;
     for (NSUInteger i = 0; i < [self.connections count]; i++)
     {
@@ -573,11 +576,15 @@ NSString *const AsyncImageErrorKey = @"error";
 @end
 
 
+
 @implementation UIImageView(AsyncImageView)
+
 
 - (void)setImageURL:(NSURL *)imageURL
 {
-	[[AsyncImageLoader sharedLoader] loadImageWithURL:imageURL target:self action:@selector(setImage:)];
+        
+    [[AsyncImageLoader sharedLoader] loadImageWithURL:imageURL target:self success:@selector(setImage:) failure:@selector(showDefaultImage)];
+
 }
 
 - (NSURL *)imageURL
@@ -611,7 +618,9 @@ NSString *const AsyncImageErrorKey = @"error";
         [self setUp];
     }
     return self;
+    
 }
+
 
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
@@ -622,6 +631,7 @@ NSString *const AsyncImageErrorKey = @"error";
     return self;
 }
 
+
 - (void)setImageURL:(NSURL *)imageURL
 {
     UIImage *image = [[AsyncImageLoader sharedLoader].cache objectForKey:imageURL];
@@ -630,7 +640,9 @@ NSString *const AsyncImageErrorKey = @"error";
         self.image = image;
         return;
     }
+   
     super.imageURL = imageURL;
+
     if (self.showActivityIndicator && !self.image && imageURL)
     {
         if (self.activityView == nil)
@@ -656,6 +668,10 @@ NSString *const AsyncImageErrorKey = @"error";
 {
     if (image != self.image && self.crossfadeDuration)
     {
+        self.layer.borderWidth = self.borderWidth;
+        self.layer.cornerRadius = self.cornerRadius;
+        self.layer.borderColor = self.borderColor;
+
         //jump through a few hoops to avoid QuartzCore framework dependency
         CAAnimation *animation = [NSClassFromString(@"CATransition") animation];
         [animation setValue:@"kCATransitionFade" forKey:@"type"];
@@ -664,6 +680,32 @@ NSString *const AsyncImageErrorKey = @"error";
     }
     super.image = image;
     [self.activityView stopAnimating];
+}
+
+- (void)showDefaultImage
+{
+
+    if (self.defaultImage)
+    {
+    
+        if (self.defaultImage != self.image && self.crossfadeDuration)
+        {
+            self.layer.borderWidth = self.borderWidth;
+            self.layer.cornerRadius = self.cornerRadius;
+            self.layer.borderColor = self.borderColor;
+            
+            //jump through a few hoops to avoid QuartzCore framework dependency
+            CAAnimation *animation = [NSClassFromString(@"CATransition") animation];
+            [animation setValue:@"kCATransitionFade" forKey:@"type"];
+            animation.duration = self.crossfadeDuration;
+            [self.layer addAnimation:animation forKey:nil];
+        }
+        
+        super.image = self.defaultImage;
+    }
+    
+    [self.activityView stopAnimating];
+
 }
 
 - (void)dealloc
